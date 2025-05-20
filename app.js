@@ -1,0 +1,106 @@
+const express = require('express');
+const multer = require('multer');
+const aws = require('aws-sdk');
+const mysql = require('mysql2/promise');
+const path = require('path');
+const dotenv = require('dotenv');
+const fs = require('fs');
+const expressLayouts = require('express-ejs-layouts');
+const app = express();
+
+dotenv.config();
+
+const PORT = process.env.PORT || 5000;
+
+app.set('view engine', 'ejs');
+app.use(express.static('public'));
+app.use(express.urlencoded({ extended: true }));
+
+const upload = multer({ storage: multer.memoryStorage() });
+
+const s3 = new aws.S3({
+  region: process.env.S3_REGION,
+});
+
+const db = async () => {
+  return mysql.createConnection({
+    host: process.env.DB_HOST,
+    database: process.env.DB_NAME,
+    user: process.env.DB_USER,
+    password: process.env.DB_PASSWORD,
+  });
+};
+
+app.get('/', (req, res) => {
+  res.render('index', { message: null });
+});
+
+app.get('/gallery', async (req, res) => {
+  try {
+    const conn = await db();
+    const [rows] = await conn.execute(
+      'SELECT image_key, thumbnail_key, caption FROM captions ORDER BY uploaded_at DESC'
+    );
+    await conn.end();
+
+    const images = rows.map((row) => ({
+      originalUrl: s3.getSignedUrl('getObject', {
+        Bucket: process.env.S3_BUCKET,
+        Key: row.image_key,
+        Expires: 3600,
+      }),
+      thumbnailUrl: s3.getSignedUrl('getObject', {
+        Bucket: process.env.S3_BUCKET,
+        Key: row.thumbnail_key,
+        Expires: 3600,
+      }),
+      caption: row.caption,
+    }));
+
+    res.render('gallery', { images });
+  } catch (err) {
+    res.render('gallery', { error: err.message });
+  }
+});
+
+app.post('/upload', upload.single('file'), async (req, res) => {
+  const file = req.file;
+  if (!file) return res.render('upload', { error: 'No file uploaded' });
+
+  const fileName = file.originalname;
+  const mimeType = file.mimetype;
+
+  // Upload to S3
+  try {
+    await s3
+      .upload({
+        Bucket: process.env.S3_BUCKET,
+        Key: fileName,
+        Body: file.buffer,
+        ContentType: mimeType,
+      })
+      .promise();
+  } catch (err) {
+    return res.render('upload', { error: 'S3 Upload Error: ' + err.message });
+  }
+
+  // Save to DB
+  try {
+    const conn = await db();
+    await conn.execute('INSERT INTO captions (image_key) VALUES (?, ?)', [
+      fileName,
+      caption,
+    ]);
+    await conn.end();
+  } catch (err) {
+    return res.render('upload', { error: 'DB Error: ' + err.message });
+  }
+
+  const base64Image = file.buffer.toString('base64');
+  const s3url = `https://${process.env.S3_BUCKET}.s3.${process.env.S3_REGION}.amazonaws.com/${fileName}`;
+  res.render('upload', { image_data: base64Image, file_url: s3url, caption });
+});
+
+app.listen(PORT, () => {
+  console.log(`Server running on http://localhost:${PORT}`);
+});

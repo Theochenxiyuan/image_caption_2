@@ -1,0 +1,28 @@
+<%- include("partials/header", { title: "Image Gallery" }) %>
+
+    <h2>Uploaded Images</h2>
+
+    <% if (typeof error !=="undefined" && error) { %>
+        <p style="color: red;">
+            <%= error %>
+        </p>
+        <% } else if (images && images.length> 0) { %>
+            <div class="gallery">
+                <% images.forEach(image=> { %>
+                    <div class="image-container" style="display: flex; align-items: center; margin-bottom: 20px;">
+                        <img src="<%= image.url %>" alt="Uploaded Image"
+                            style="max-width: 200px; border-radius: 5px; margin-right: 20px;" />
+                        <p><strong>Caption:</strong>
+                            <%= image.caption %>
+                        </p>
+                    </div>
+                    <% }); %>
+            </div>
+            <% } else { %>
+                <p>No images uploaded yet.</p>
+                <% } %>
+
+                    <br />
+                    <a href="/">Upload More Images</a>
+
+                    <%- include("partials/footer") %>
