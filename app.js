@@ -85,7 +85,7 @@ app.post('/upload', upload.single('file'), async (req, res) => {
 
   const base64Image = file.buffer.toString('base64');
   const s3url = `https://${process.env.S3_BUCKET}.s3.${process.env.S3_REGION}.amazonaws.com/${fileName}`;
-  res.render('upload', { image_data: base64Image, file_url: s3url, caption });
+  res.render('upload', { image_data: base64Image, file_url: s3url });
 });
 
 app.listen(PORT, () => {
