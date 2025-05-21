@@ -5,7 +5,6 @@ const mysql = require('mysql2/promise');
 const path = require('path');
 const dotenv = require('dotenv');
 const fs = require('fs');
-const expressLayouts = require('express-ejs-layouts');
 const app = express();
 
 dotenv.config();
@@ -89,7 +88,6 @@ app.post('/upload', upload.single('file'), async (req, res) => {
     const conn = await db();
     await conn.execute('INSERT INTO captions (image_key) VALUES (?, ?)', [
       fileName,
-      caption,
     ]);
     await conn.end();
   } catch (err) {
