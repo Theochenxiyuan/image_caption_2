@@ -1,7 +1,10 @@
 const express = require('express');
 const multer = require('multer');
 const aws = require('aws-sdk');
+const mysql = require('mysql2/promise');
+const path = require('path');
 const dotenv = require('dotenv');
+const fs = require('fs');
 const app = express();
 
 dotenv.config();
@@ -17,6 +20,15 @@ const upload = multer({ storage: multer.memoryStorage() });
 const s3 = new aws.S3({
   region: process.env.S3_REGION,
 });
+
+const db = async () => {
+  return mysql.createConnection({
+    host: process.env.DB_HOST,
+    database: process.env.DB_NAME,
+    user: process.env.DB_USER,
+    password: process.env.DB_PASSWORD,
+  });
+};
 
 app.get('/', (req, res) => {
   res.render('index', { message: null });
