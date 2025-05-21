@@ -1,10 +1,7 @@
 const express = require('express');
 const multer = require('multer');
 const aws = require('aws-sdk');
-const mysql = require('mysql2/promise');
-const path = require('path');
 const dotenv = require('dotenv');
-const fs = require('fs');
 const app = express();
 
 dotenv.config();
@@ -20,15 +17,6 @@ const upload = multer({ storage: multer.memoryStorage() });
 const s3 = new aws.S3({
   region: process.env.S3_REGION,
 });
-
-const db = async () => {
-  return mysql.createConnection({
-    host: process.env.DB_HOST,
-    database: process.env.DB_NAME,
-    user: process.env.DB_USER,
-    password: process.env.DB_PASSWORD,
-  });
-};
 
 app.get('/', (req, res) => {
   res.render('index', { message: null });
@@ -81,17 +69,6 @@ app.post('/upload', upload.single('file'), async (req, res) => {
       .promise();
   } catch (err) {
     return res.render('upload', { error: 'S3 Upload Error: ' + err.message });
-  }
-
-  // Save to DB
-  try {
-    const conn = await db();
-    await conn.execute('INSERT INTO captions (image_key) VALUES (?, ?)', [
-      fileName,
-    ]);
-    await conn.end();
-  } catch (err) {
-    return res.render('upload', { error: 'DB Error: ' + err.message });
   }
 
   const base64Image = file.buffer.toString('base64');
