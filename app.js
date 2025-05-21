@@ -74,7 +74,7 @@ app.post('/upload', upload.single('file'), async (req, res) => {
     await s3
       .upload({
         Bucket: process.env.S3_BUCKET,
-        Key: fileName,
+        Key: `uploads/${fileName}`,
         Body: file.buffer,
         ContentType: mimeType,
       })
