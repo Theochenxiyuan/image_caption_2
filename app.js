@@ -60,22 +60,23 @@ app.get('/gallery', async (req, res) => {
     await conn.end();
 
     console.log('Rows:', rows);
-    const images = rows.map((row) => ({
-      originalUrl:
-        s3.getSignedUrl('getObject', {
+    const images = rows.map((row) => {
+      console.log('Bucket env:', process.env.S3_BUCKET);
+      console.log('First image key:', rows[0]?.image_key);
+      return {
+        originalUrl: s3.getSignedUrl('getObject', {
           Bucket: process.env.S3_BUCKET,
           Key: row.image_key,
           Expires: 3600,
-        }) + `&t=${Date.now()}`,
-
-      thumbnailUrl:
-        s3.getSignedUrl('getObject', {
+        }),
+        thumbnailUrl: s3.getSignedUrl('getObject', {
           Bucket: process.env.S3_BUCKET,
           Key: row.thumbnail_key,
           Expires: 3600,
-        }) + `&t=${Date.now()}`,
-      caption: row.caption,
-    }));
+        }),
+        caption: row.caption,
+      };
+    });
 
     res.render('gallery', { images });
   } catch (err) {
