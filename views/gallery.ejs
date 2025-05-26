@@ -10,11 +10,14 @@
             <div class="gallery">
                 <% images.forEach(image=> { %>
                     <div class="image-container" style="display: flex; align-items: center; margin-bottom: 20px;">
-                        <img src="<%= image.url %>" alt="Uploaded Image"
+                        <img src="<%= image.thumbnailUrl %>" alt="Thumbnail"
                             style="max-width: 200px; border-radius: 5px; margin-right: 20px;" />
-                        <p><strong>Caption:</strong>
-                            <%= image.caption %>
-                        </p>
+                        <div>
+                            <p><strong>Caption:</strong>
+                                <%= image.caption %>
+                            </p>
+                            <p><a href="<%= image.originalUrl %>" target="_blank">View Full Image</a></p>
+                        </div>
                     </div>
                     <% }); %>
             </div>
