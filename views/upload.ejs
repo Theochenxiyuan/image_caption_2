@@ -7,8 +7,8 @@
             <%= error %>
         </p>
         <% } else { %>
-            <h2><strong>Uploaded successfully</strong>
-            </h2>
+            <p>Uploaded successfully
+            </p>
             <img src="data:image/jpeg;base64,<%= image_data %>" alt="Uploaded Image"
                 style="max-width: 300px; border: 1px solid #ccc; padding: 5px; border-radius: 5px;" />
             <p> <a href="/gallery" target="_blank">
@@ -18,6 +18,6 @@
             <% } %>
 
                 <br />
-                <a href="/">Upload Another Image</a> | <a href="/gallery">View Gallery</a>
+                <a href="/">Upload Another Image</a>
 
                 <%- include("partials/footer") %>
