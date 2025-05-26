@@ -12,7 +12,9 @@
   "license": "ISC",
   "type": "commonjs",
   "dependencies": {
-    "aws-sdk": "^2.1692.0",
+    "@aws-sdk/client-s3": "^3.817.0",
+    "@aws-sdk/client-secrets-manager": "^3.817.0",
+    "@aws-sdk/s3-request-presigner": "^3.817.0",
     "body-parser": "^2.2.0",
     "dotenv": "^16.5.0",
     "ejs": "^3.1.10",
