@@ -7,14 +7,14 @@
             <%= error %>
         </p>
         <% } else { %>
+            <h2><strong>Uploaded successfully</strong>
+            </h2>
             <img src="data:image/jpeg;base64,<%= image_data %>" alt="Uploaded Image"
                 style="max-width: 300px; border: 1px solid #ccc; padding: 5px; border-radius: 5px;" />
-            <p><strong>S3 URL:</strong> <a href="<%= file_url %>" target="_blank">
-                    <%= file_url %>
+            <p> <a href="/gallery" target="_blank">
+                    View Caption In Gallery
                 </a></p>
-            <p><strong>Caption:</strong>
-                Features unavailable yet
-            </p>
+
             <% } %>
 
                 <br />
