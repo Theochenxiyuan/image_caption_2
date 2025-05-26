@@ -21,12 +21,29 @@ const s3 = new aws.S3({
   region: process.env.S3_REGION,
 });
 
+const secretName = process.env.DB_SECRET_NAME;
+
 const db = async () => {
+  const client = new AWS.SecretsManager({ region: 'us-east-1' });
+
+  const secretData = await client
+    .getSecretValue({ SecretId: secretName })
+    .promise();
+
+  let secret;
+  if ('SecretString' in secretData) {
+    secret = JSON.parse(secretData.SecretString);
+  } else {
+    const buff = Buffer.from(secretData.SecretBinary, 'base64');
+    secret = JSON.parse(buff.toString('ascii'));
+  }
+
+  // Use the secrets to establish the DB connection
   return mysql.createConnection({
-    host: process.env.DB_HOST,
-    database: process.env.DB_NAME,
-    user: process.env.DB_USER,
-    password: process.env.DB_PASSWORD,
+    host: secret.host,
+    database: secret.dbname,
+    user: secret.username,
+    password: secret.password,
   });
 };
 
