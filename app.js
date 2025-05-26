@@ -60,27 +60,22 @@ app.get('/gallery', async (req, res) => {
     await conn.end();
 
     console.log('Rows:', rows);
-    const images = await Promise.all(
-      rows.map(async (row) => {
-        const originalUrl = s3.getSignedUrl('getObject', {
+    const images = rows.map((row) => ({
+      originalUrl:
+        s3.getSignedUrl('getObject', {
           Bucket: process.env.S3_BUCKET,
           Key: row.image_key,
           Expires: 3600,
-        });
+        }) + `&t=${Date.now()}`,
 
-        const thumbnailUrl = s3.getSignedUrl('getObject', {
+      thumbnailUrl:
+        s3.getSignedUrl('getObject', {
           Bucket: process.env.S3_BUCKET,
           Key: row.thumbnail_key,
           Expires: 3600,
-        });
-
-        return {
-          originalUrl,
-          thumbnailUrl,
-          caption: row.caption,
-        };
-      })
-    );
+        }) + `&t=${Date.now()}`,
+      caption: row.caption,
+    }));
 
     res.render('gallery', { images });
   } catch (err) {
