@@ -59,6 +59,7 @@ app.get('/gallery', async (req, res) => {
     );
     await conn.end();
 
+    console.log('Rows:', rows);
     const images = rows.map((row) => ({
       originalUrl: s3.getSignedUrl('getObject', {
         Bucket: process.env.S3_BUCKET,
