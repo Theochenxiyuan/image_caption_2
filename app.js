@@ -24,7 +24,7 @@ const s3 = new aws.S3({
 const secretName = process.env.DB_SECRET_NAME;
 
 const db = async () => {
-  const client = new AWS.SecretsManager({ region: 'us-east-1' });
+  const client = new aws.SecretsManager({ region: 'us-east-1' });
 
   const secretData = await client
     .getSecretValue({ SecretId: secretName })
